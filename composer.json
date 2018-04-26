@@ -1,0 +1,13 @@
+{
+  "name": "jlttt/cleanCode-chapter15",
+  "require-dev": {
+    "atoum/atoum": "^3.3",
+    "codeclimate/php-test-reporter": "dev-master",
+    "sebastian/phpcpd": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jlttt\\cleanCode15\\": "src/"
+    }
+  }
+}
