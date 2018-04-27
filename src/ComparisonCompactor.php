@@ -24,7 +24,7 @@ class ComparisonCompactor
 
     public function compact(?string $message): string
     {
-        if (is_null($this->expected) || is_null($this->actual) || $this->areStringsEqual()) {
+        if (!$this->isCompactable()) {
             return Asserter::format($message, $this->expected, $this->actual);
         }
         $this->findCommonPrefix();
@@ -32,6 +32,11 @@ class ComparisonCompactor
         $expected = $this->compactString($this->expected);
         $actual = $this->compactString($this->actual);
         return Asserter::format($message, $expected, $actual);
+    }
+
+    private function isCompactable(): bool
+    {
+        return !is_null($this->expected) && !is_null($this->actual) && !$this->areStringsEqual();
     }
 
     private function compactString(string $source): string
