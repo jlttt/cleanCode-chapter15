@@ -87,9 +87,9 @@ class ComparisonCompactor
 
     private function computeCommonSuffix()
     {
-        $end = min(strlen($this->expected) - $this->suffixLength + 1 + $this->contextLength, strlen($this->expected));
-        return substr($this->expected, strlen($this->expected) - $this->suffixLength + 1, $end - (strlen($this->expected) - $this->suffixLength + 1)) .
-            ((strlen($this->expected) - $this->suffixLength + 1 < strlen($this->expected) - $this->contextLength) ? self::ELLIPSIS : "");
+        $length = min($this->suffixLength, $this->contextLength);
+        return substr($this->expected, strlen($this->expected) - $this->suffixLength + 1, $length) .
+            ($this->suffixLength - 1 > $this->contextLength ? self::ELLIPSIS : "");
     }
 
     private function areStringsEqual(): bool
