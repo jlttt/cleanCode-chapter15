@@ -42,7 +42,7 @@ class ComparisonCompactor
     private function compactString(string $source): string
     {
         $result = self::DELTA_START .
-            substr($source, $this->prefixLength, strlen($source) - $this->suffixLength + 1 - $this->prefixLength) .
+            substr($source, $this->prefixLength, strlen($source) - $this->suffixLength - $this->prefixLength) .
             self::DELTA_END;
 
         if ($this->prefixLength > 0) {
@@ -69,14 +69,15 @@ class ComparisonCompactor
 
     private function findCommonSuffix()
     {
-        $expectedSuffix = strlen($this->expected) - 1;
-        $actualSuffix = strlen($this->actual) - 1;
-        for (; $actualSuffix >= $this->prefixLength && $expectedSuffix >= $this->prefixLength; $actualSuffix--, $expectedSuffix--) {
-            if ($this->expected[$expectedSuffix] != $this->actual[$actualSuffix]) {
+        $this->suffixLength = 0;
+        $reverseExpected = strrev($this->expected);
+        $reverseActual = strrev($this->actual);
+        $end = min(strlen($this->expected), strlen($this->actual)) - $this->prefixLength;
+        for (; $this->suffixLength < $end; $this->suffixLength++) {
+            if ($reverseExpected[$this->suffixLength] != $reverseActual[$this->suffixLength]) {
                 break;
             }
         }
-        $this->suffixLength = strlen($this->expected) - $expectedSuffix;
     }
 
     private function computeCommonPrefix()
@@ -89,8 +90,8 @@ class ComparisonCompactor
     private function computeCommonSuffix()
     {
         $length = min($this->suffixLength, $this->contextLength);
-        return substr($this->expected, strlen($this->expected) - $this->suffixLength + 1, $length) .
-            ($this->suffixLength - 1 > $this->contextLength ? self::ELLIPSIS : "");
+        return substr($this->expected, strlen($this->expected) - $this->suffixLength, $length) .
+            ($this->suffixLength > $this->contextLength ? self::ELLIPSIS : "");
     }
 
     private function areStringsEqual(): bool
