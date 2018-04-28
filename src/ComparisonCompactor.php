@@ -81,8 +81,9 @@ class ComparisonCompactor
 
     private function computeCommonPrefix()
     {
+        $length = min($this->prefixLength, $this->contextLength);
         return ($this->prefixLength > $this->contextLength ? self::ELLIPSIS : "") .
-        substr($this->expected, max(0, $this->prefixLength - $this->contextLength), $this->prefixLength - max(0, $this->prefixLength - $this->contextLength));
+        substr($this->expected, max(0, $this->prefixLength - $this->contextLength), $length);
     }
 
     private function computeCommonSuffix()
