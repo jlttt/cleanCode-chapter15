@@ -12,6 +12,7 @@ class ComparisonCompactor
     private $contextLength;
     private $expected;
     private $actual;
+    private $minimalLength;
     private $prefixLength;
     private $suffixLength;
 
@@ -20,6 +21,7 @@ class ComparisonCompactor
         $this->contextLength = $contextLength;
         $this->expected = $expected;
         $this->actual = $actual;
+        $this->minimalLength = min(strlen($this->expected), strlen($this->actual));
     }
 
     public function compact(?string $message): string
@@ -59,8 +61,7 @@ class ComparisonCompactor
     private function findCommonPrefix()
     {
         $this->prefixLength = 0;
-        $end = min(strlen($this->expected), strlen($this->actual));
-        for (; $this->prefixLength < $end; $this->prefixLength++) {
+        for (; $this->prefixLength < $this->minimalLength; $this->prefixLength++) {
             if ($this->expected[$this->prefixLength] != $this->actual[$this->prefixLength]) {
                 break;
             }
@@ -72,7 +73,7 @@ class ComparisonCompactor
         $this->suffixLength = 0;
         $reverseExpected = strrev($this->expected);
         $reverseActual = strrev($this->actual);
-        $end = min(strlen($this->expected), strlen($this->actual)) - $this->prefixLength;
+        $end = $this->minimalLength - $this->prefixLength;
         for (; $this->suffixLength < $end; $this->suffixLength++) {
             if ($reverseExpected[$this->suffixLength] != $reverseActual[$this->suffixLength]) {
                 break;
@@ -93,7 +94,8 @@ class ComparisonCompactor
         return strrev($reverseSuffix);
     }
 
-    private function computePrefix($source, $prefixLength, $ellipsis) {
+    private function computePrefix($source, $prefixLength, $ellipsis)
+    {
         $prefix = substr(
             $source,
             max(0, $prefixLength - $this->contextLength),
