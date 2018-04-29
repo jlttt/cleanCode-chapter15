@@ -36,9 +36,9 @@ class ComparisonCompactor
     {
         $this->findCommonPrefix();
         $this->findCommonSuffix();
-        $expected = $this->compactString($this->expected);
-        $actual = $this->compactString($this->actual);
-        return Asserter::format($message, $expected, $actual);
+        $compactedExpected = $this->compactString($this->expected);
+        $compactedActual = $this->compactString($this->actual);
+        return Asserter::format($message, $compactedExpected, $compactedActual);
     }
 
     private function isCompactable(): bool
