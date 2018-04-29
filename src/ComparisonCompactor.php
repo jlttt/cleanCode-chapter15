@@ -24,11 +24,16 @@ class ComparisonCompactor
         $this->minimalLength = min(strlen($this->expected), strlen($this->actual));
     }
 
-    public function compact(?string $message): string
+    public function getResult(?string $message): string
     {
-        if (!$this->isCompactable()) {
-            return Asserter::format($message, $this->expected, $this->actual);
+        if ($this->isCompactable()) {
+            return $this->compact($message);
         }
+        return Asserter::format($message, $this->expected, $this->actual);
+    }
+
+    private function compact(?string $message): string
+    {
         $this->findCommonPrefix();
         $this->findCommonSuffix();
         $expected = $this->compactString($this->expected);
