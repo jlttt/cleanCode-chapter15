@@ -82,16 +82,27 @@ class ComparisonCompactor
 
     private function computeCommonPrefix()
     {
-        $length = min($this->prefixLength, $this->contextLength);
-        return ($this->prefixLength > $this->contextLength ? self::ELLIPSIS : "") .
-        substr($this->expected, max(0, $this->prefixLength - $this->contextLength), $length);
+        return $this->computePrefix($this->expected, $this->prefixLength, self::ELLIPSIS);
     }
 
     private function computeCommonSuffix()
     {
-        $length = min($this->suffixLength, $this->contextLength);
-        return substr($this->expected, strlen($this->expected) - $this->suffixLength, $length) .
-            ($this->suffixLength > $this->contextLength ? self::ELLIPSIS : "");
+        $reverseExpected = strrev($this->expected);
+        $reverseEllipsis = strrev(self::ELLIPSIS);
+        $reverseSuffix = $this->computePrefix($reverseExpected, $this->suffixLength, $reverseEllipsis);
+        return strrev($reverseSuffix);
+    }
+
+    private function computePrefix($source, $prefixLength, $ellipsis) {
+        $prefix = substr(
+            $source,
+            max(0, $prefixLength - $this->contextLength),
+            min($prefixLength, $this->contextLength)
+        );
+        if ($prefixLength > $this->contextLength) {
+            $prefix = $ellipsis . $prefix;
+        }
+        return $prefix;
     }
 
     private function areStringsEqual(): bool
