@@ -42,33 +42,6 @@ class ComparisonCompactor
         return !is_null($this->expected) && !is_null($this->actual) && !$this->areStringsEqual();
     }
 
-    private function compact(string $source): string
-    {
-        $deltaLength = strlen($source) - ($this->suffixLength + $this->prefixLength);
-        $result = self::DELTA_START .
-            substr($source, $this->prefixLength, $deltaLength) .
-            self::DELTA_END;
-
-        if ($this->prefixLength > 0) {
-            $result = $this->getCommonPrefix() . $result;
-        }
-
-        if ($this->suffixLength > 0) {
-            $result = $result . $this->getCommonSuffix();
-        }
-
-        return $result;
-    }
-
-    private function computeCommonSuffixLength()
-    {
-        return $this->computeCommonPrefixLength(
-            strrev($this->expected),
-            strrev($this->actual),
-            $this->minimalLength - $this->prefixLength
-        );
-    }
-
     private function computeCommonPrefixLength(?string $first = null, ?string $second = null, ?int $maxIndex = null)
     {
         if (is_null($first)) {
@@ -88,16 +61,48 @@ class ComparisonCompactor
         return $maxIndex;
     }
 
+    private function computeCommonSuffixLength()
+    {
+        return $this->computeCommonPrefixLength(
+            strrev($this->expected),
+            strrev($this->actual),
+            $this->minimalLength - $this->prefixLength
+        );
+    }
+
+    private function compact(string $source): string
+    {
+        return $this->getCommonPrefix() .
+            self::DELTA_START .
+            $this->getDelta($source) .
+            self::DELTA_END .
+            $this->getCommonSuffix();
+    }
+
+    private function getDelta(string $source)
+    {
+        $deltaLength = strlen($source) - ($this->suffixLength + $this->prefixLength);
+        return substr($source, $this->prefixLength, $deltaLength);
+    }
+
     private function getCommonPrefix()
     {
-        return $this->computePrefix($this->expected, $this->prefixLength, self::ELLIPSIS);
+        return $this->computePrefix(
+            $this->expected,
+            $this->prefixLength,
+            self::ELLIPSIS
+        );
     }
 
     private function getCommonSuffix()
     {
         $reverseExpected = strrev($this->expected);
         $reverseEllipsis = strrev(self::ELLIPSIS);
-        $reverseSuffix = $this->computePrefix($reverseExpected, $this->suffixLength, $reverseEllipsis);
+        $reverseSuffix = $this->computePrefix(
+            $reverseExpected,
+            $this->suffixLength,
+            $reverseEllipsis
+        );
         return strrev($reverseSuffix);
     }
 
