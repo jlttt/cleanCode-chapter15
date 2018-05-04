@@ -34,8 +34,8 @@ class ComparisonCompactor
 
     private function compact(?string $message): string
     {
-        $this->prefixLength = $this->getCommonPrefixLength();
-        $this->suffixLength = $this->getCommonSuffixLength();
+        $this->prefixLength = $this->computeCommonPrefixLength();
+        $this->suffixLength = $this->computeCommonSuffixLength();
         $compactedExpected = $this->compactString($this->expected);
         $compactedActual = $this->compactString($this->actual);
         return Asserter::format($message, $compactedExpected, $compactedActual);
@@ -64,16 +64,7 @@ class ComparisonCompactor
         return $result;
     }
 
-    private function getCommonPrefixLength()
-    {
-        return $this->computeCommonPrefixLength(
-            $this->expected,
-            $this->actual,
-            $this->minimalLength
-        );
-    }
-
-    private function getCommonSuffixLength()
+    private function computeCommonSuffixLength()
     {
         return $this->computeCommonPrefixLength(
             strrev($this->expected),
@@ -82,8 +73,17 @@ class ComparisonCompactor
         );
     }
 
-    private function computeCommonPrefixLength($first, $second, $maxIndex)
+    private function computeCommonPrefixLength(?string $first = null, ?string $second = null, ?int $maxIndex = null)
     {
+        if (is_null($first)) {
+            $first = $this->expected;
+        }
+        if (is_null($second)) {
+            $second = $this->actual;
+        }
+        if (is_null($maxIndex)) {
+            $maxIndex = $this->minimalLength;
+        }
         for ($prefixLength = 0; $prefixLength < $maxIndex; $prefixLength++) {
             if ($first[$prefixLength] != $second[$prefixLength]) {
                 return $prefixLength;
