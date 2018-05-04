@@ -26,18 +26,14 @@ class ComparisonCompactor
 
     public function getResult(?string $message): string
     {
+        $compactedExpected = $this->expected;
+        $compactedActual = $this->actual;
         if ($this->isCompactable()) {
-            return $this->compact($message);
+            $this->prefixLength = $this->computeCommonPrefixLength();
+            $this->suffixLength = $this->computeCommonSuffixLength();
+            $compactedExpected = $this->compactString($this->expected);
+            $compactedActual = $this->compactString($this->actual);
         }
-        return Asserter::format($message, $this->expected, $this->actual);
-    }
-
-    private function compact(?string $message): string
-    {
-        $this->prefixLength = $this->computeCommonPrefixLength();
-        $this->suffixLength = $this->computeCommonSuffixLength();
-        $compactedExpected = $this->compactString($this->expected);
-        $compactedActual = $this->compactString($this->actual);
         return Asserter::format($message, $compactedExpected, $compactedActual);
     }
 
