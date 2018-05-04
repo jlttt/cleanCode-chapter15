@@ -21,7 +21,22 @@ class ComparisonCompactor
         $this->contextLength = $contextLength;
         $this->expected = $expected;
         $this->actual = $actual;
-        $this->minimalLength = min(strlen($this->expected), strlen($this->actual));
+        $this->minimalLength = $this->computeMinimalLength();
+    }
+
+    private function computeMinimalLength()
+    {
+        return min(array_map('strlen', $this->filterNull([$this->expected, $this->actual])));
+    }
+
+    private function filterNull($input)
+    {
+        return array_filter(
+            $input,
+            function ($item) {
+                return !is_null($item);
+            }
+        );
     }
 
     public function getResult(?string $message): string
@@ -42,17 +57,17 @@ class ComparisonCompactor
         return !is_null($this->expected) && !is_null($this->actual) && !$this->areStringsEqual();
     }
 
-    private function computeCommonPrefixLength(?string $first = null, ?string $second = null, ?int $maxIndex = null)
+    private function computeCommonPrefixLength(string $first = null, string $second = null, int $maxIndex = null)
     {
-        if (is_null($first)) {
-            $first = $this->expected;
-        }
-        if (is_null($second)) {
-            $second = $this->actual;
-        }
-        if (is_null($maxIndex)) {
-            $maxIndex = $this->minimalLength;
-        }
+        $default = [
+            'first' => $this->expected,
+            'second' => $this->actual,
+            'maxIndex' => $this->minimalLength
+        ];
+        $arguments = $this->filterNull(compact('first', 'second', 'maxIndex'));
+        $arguments = array_merge($default, $arguments);
+        extract($arguments);
+
         for ($prefixLength = 0; $prefixLength < $maxIndex; $prefixLength++) {
             if ($first[$prefixLength] != $second[$prefixLength]) {
                 return $prefixLength;
