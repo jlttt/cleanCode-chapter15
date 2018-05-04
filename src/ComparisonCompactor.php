@@ -31,8 +31,8 @@ class ComparisonCompactor
         if ($this->isCompactable()) {
             $this->prefixLength = $this->computeCommonPrefixLength();
             $this->suffixLength = $this->computeCommonSuffixLength();
-            $compactedExpected = $this->compactString($this->expected);
-            $compactedActual = $this->compactString($this->actual);
+            $compactedExpected = $this->compact($this->expected);
+            $compactedActual = $this->compact($this->actual);
         }
         return Asserter::format($message, $compactedExpected, $compactedActual);
     }
@@ -42,7 +42,7 @@ class ComparisonCompactor
         return !is_null($this->expected) && !is_null($this->actual) && !$this->areStringsEqual();
     }
 
-    private function compactString(string $source): string
+    private function compact(string $source): string
     {
         $deltaLength = strlen($source) - ($this->suffixLength + $this->prefixLength);
         $result = self::DELTA_START .
